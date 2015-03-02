@@ -1,8 +1,8 @@
-module four_one_mux_16(input 	[15:0] 	w, x, y, z,
-					input		[1:0]	select,
-					output	[15:0] 	out);
+module four_one_mux_3 (input 	[2:0] 	w, x, y, z,
+					   input	[1:0]	select,
+					   output	[2:0] 	out);
 		
-		reg [15:0] outp;
+		reg [2:0] outp;
 		always_comb
 		begin: MUX
 			case(select)

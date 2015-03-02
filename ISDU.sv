@@ -92,7 +92,7 @@ module ISDU ( 	input	Clk,
             S_32 : 
 				case (Opcode)
 					4'b0001 : 
-					    Next_state <= S_01;		//ADD
+					   Next_state <= S_01;		//ADD
 					4'b0101 :
 						Next_state <= S_05;		//AND
 					4'b1001 :
@@ -108,19 +108,22 @@ module ISDU ( 	input	Clk,
 					4'b0111	:
 						Next_state <= S_07;		//STR
 					4'b1101	:
-						Next_state <= ?;		//PAUSE
+						Next_state <= PauseIR2;		//PAUSE
 					default : 
-					    Next_state <= S_18;
+					   Next_state <= S_18;
 				endcase
             S_01 : 
-				Next_state <= S_18;
-			S_05 :
-			S_09 :
-			S_00 :
-			S_12 :
-			S_04 :
-			S_06 :
-			S_07 :
+					 Next_state <= S_18;
+				S_05 : 
+					 Next_state <= S_18;
+				S_09 : 
+					 Next_state <= S_18;
+				S_00 : ;
+				S_12 : 
+					 Next_state	<= S_18;
+				S_04 : ;
+				S_06 : ;
+				S_07 : ;
 			default : ;
 
 	     endcase
@@ -143,7 +146,7 @@ module ISDU ( 	input	Clk,
 	    GateALU = 1'b0;
 	    GateMARMUX = 1'b0;
 		 
-		ALUK = 2'b00;
+		 ALUK = 2'b00;
 		 
 	    PCMUX = 2'b00;
 	    DRMUX = 2'b00;
@@ -171,38 +174,43 @@ module ISDU ( 	input	Clk,
 				begin 
 					Mem_OE = 1'b0;
 					LD_MDR = 1'b1;
-                end
-            S_35 : 
-                begin 
+            end
+			S_35 : 
+            begin 
 					GateMDR = 1'b1;
 					LD_IR = 1'b1;
-                end
-            PauseIR1: ;
-            PauseIR2: ;
-            S_32 : 
-                LD_BEN = 1'b1;
-            S_01 : 						//ADD
-                begin 
+            end
+			PauseIR1: ;
+			PauseIR2: ;
+			S_32 : 
+             LD_BEN = 1'b1;
+			S_01 : 						//ADD
+            begin 
 					SR2MUX = IR_5;
 					ALUK = 2'b00;
 					GateALU = 1'b1;
 					LD_REG = 1'b1;
-                end
-           	S_05 :						//AND 
-           		begin
-           			SR2MUX = IR_5;
-           			ALUK = 2'b01;
-           			GateALU = 1'b1;
-           			LD_REG = 1'b1;
-           		end
-           	S_09 : ;
-           	S_00 : ;
-           	S_12 : ;
-           	S_04 : ;
-           	S_06 : ;
-           	S_07 : ;
+				end
+			S_05 :						//AND 
+				begin
+					SR2MUX = IR_5;
+					ALUK = 2'b01;
+					GateALU = 1'b1;
+					LD_REG = 1'b1;
+           	end
+			S_09 : 						//NOT
+				begin
+					ALUK = 2'b10;
+					GateALU = 1'b1;
+					LD_REG = 1'b1;
+				end
+			S_00 : ;
+			S_12 : ;
+			S_04 : ;
+			S_06 : ;
+			S_07 : ;
            	
-            default : ;
+         default : ;
            endcase
        end 
 
