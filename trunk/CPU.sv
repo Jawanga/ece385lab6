@@ -80,8 +80,6 @@ module CPU (input logic		[15:0]	S,
 		reg_16		MDR(.Clk, .Reset(Reset_h), .Load(LD_MDR), .D(Data), .Data_Out(MDR_out));
 		reg_16		PC(.Clk, .Reset(Reset_h), .Load(LD_PC), .D(PCd_in), .Data_Out(PCd_out));
 		reg_16		IR(.Clk, .Reset(Reset_h), .Load(LD_IR), .D(Data), .Data_Out(IR_out));
-		reg_16		DR(.Clk, .Reset(Reset_h), .Load(LD_REG), .D(Data[11:9]), .Data_Out(DR_out));
-
 		
 		/*
 		module plus1(input logic	[15:0]	PC_in,
@@ -123,7 +121,5 @@ module CPU (input logic		[15:0]	S,
         */
 		
 		assign LED = IR_out[11:0];
-		assign SR1_out = S[8:6];
-		assign SR2_out = S[2:0];
 
 endmodule

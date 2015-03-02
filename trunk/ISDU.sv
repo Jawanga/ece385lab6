@@ -181,14 +181,20 @@ module ISDU ( 	input	Clk,
             PauseIR2: ;
             S_32 : 
                 LD_BEN = 1'b1;
-            S_01 : 
+            S_01 : 						//ADD
                 begin 
 					SR2MUX = IR_5;
 					ALUK = 2'b00;
 					GateALU = 1'b1;
 					LD_REG = 1'b1;
                 end
-           	S_05 : ;
+           	S_05 :						//AND 
+           		begin
+           			SR2MUX = IR_5;
+           			ALUK = 2'b01;
+           			GateALU = 1'b1;
+           			LD_REG = 1'b1;
+           		end
            	S_09 : ;
            	S_00 : ;
            	S_12 : ;
