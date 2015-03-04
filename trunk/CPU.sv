@@ -8,8 +8,8 @@ module CPU (input logic		[15:0]	S,
 		
 		logic					Reset_h, Continue_h, Run_h;
 		logic					LD_MAR, LD_MDR, LD_IR, LD_BEN, LD_CC, LD_REG, LD_PC;
-		logic		[1:0]		PCMUXselect, DRMUXselect, SR1MUXselect;
-		logic					SR2MUXselect;
+		logic		[1:0]		PCMUXselect, DRMUXselect, SR1MUXselect, ADDR2MUXselect;
+		logic					SR2MUXselect, ADDR1MUXselect;
 		logic		[15:0]	PC_w, PC_x, PC_plus1;
 		logic		[15:0]	PCd_in, PCd_out;
 		logic		[15:0]	MDR_out;
@@ -18,7 +18,9 @@ module CPU (input logic		[15:0]	S,
 		logic		[2:0]		DR, SR1_in;
 		logic		[15:0]	SR1_out, SR2_out;
 		logic		[15:0]	ALUA_in, ALUB_in, ALU_out;
+		logic		[15:0]	ADDR1_out, ADDR2_out;
 		logic		[1:0]		ALUK;
+		logic					n, z, p;
 		
 		//assign	PC_w = Data;
 		
@@ -70,8 +72,8 @@ module CPU (input logic		[15:0]	S,
 				)
 		*/
 		
-		ISDU		isdu(.Clk, .Reset(Reset_h), .Run(Run_h), .Continue(), .ContinueIR(Continue_h), .Opcode(S[15:12]), .IR_5(S[4]), .LD_MAR, .LD_MDR, .LD_IR,
-						  .LD_BEN, .LD_CC, .LD_REG, .LD_PC, .GatePC, .GateMDR, .GateALU, .GateMARMUX, .PCMUX(PCMUXselect), .DRMUX(DRMUXselect),
+		ISDU		isdu(.Clk, .Reset(Reset_h), .Run(Run_h), .Continue(), .ContinueIR(Continue_h), .Opcode(S[15:12]), .IR_5(S[4]), .n, .z, .p, .N(S[11]), .Z(S[10]), .P(S[9]),
+						  .LD_MAR, .LD_MDR, .LD_IR, .LD_BEN, .LD_CC, .LD_REG, .LD_PC, .GatePC, .GateMDR, .GateALU, .GateMARMUX, .PCMUX(PCMUXselect), .DRMUX(DRMUXselect),
 						  .SR1MUX(SR1MUXselect), .SR2MUX(SR2MUXselect), .ADDR1MUX(), .ADDR2MUX(), .MARMUX(), .ALUK, .Mem_CE(CE), .Mem_UB(UB), .Mem_LB(LB), 
 						  .Mem_OE(OE), .Mem_WE(WE));
 		/*
@@ -101,8 +103,10 @@ module CPU (input logic		[15:0]	S,
 		four_one_mux_16	PCMUX(.w(Data), .x(), .y(PC_plus1), .z(), .select(PCMUXselect), .out(PCd_in));
 		four_one_mux_3		DRMUX(.w(S[11:9]), .x(3'b110), .y(3'b111), .z(), .select(DRMUXselect), .out(DR));
 		four_one_mux_3		SR1MUX(.w(S[11:9]), .x(S[8:6]), .y(3'b110), .z(), .select(SR1MUXselect), .out(SR1_in));
-		two_one_mux_16		SR2MUX(.x(SR2_out), .y(16'($signed(IR[4:0]))), .select(SR2MUXselect), .out(ALUB_in));
-		//two_one_mux_16	MARMUX()
+		two_one_mux_16		SR2MUX(.x(SR2_out), .y(16'($signed(IR_out[4:0]))), .select(SR2MUXselect), .out(ALUB_in));
+		two_one_mux_16		ADDR1MUX(.x(PCd_out), .y(SR1_out), .select(ADDR1MUXselect), .out(ADDR1_out));
+		four_one_mux_16	ADDR2MUX(.w(IR_out), .x(16'($signed(IR_out[5:0]))), .y(16'($signed(IR_out[8:0]))), .z(16'($signed(IR_out[10:0]))), .select(ADDR2MUXselect), .out(ADDR2_out));
+		//two_one_mux_16		MARMUX()
 		
 		/*
 		module tristate_buffer(input logic	[15:0]	tri_in,
@@ -144,6 +148,14 @@ module CPU (input logic		[15:0]	S,
 				output	[15:0]	F_A_B);
 		*/
 		ALU				alu(.A_In(ALUA_in), .B_In(ALUB_in), .F(ALUK), .F_A_B(ALU_out));
+		
+		/*
+		module nzp_logic (input		[15:0]	Data,
+						input					LD_CC,
+						output				n, z, p)
+		*/
+		
+		nzp_logic		nzp(.*);
 		
 		assign LED = IR_out[11:0];
 		assign ALUA_in = SR1_out;

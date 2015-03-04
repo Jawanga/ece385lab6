@@ -22,7 +22,8 @@ module ISDU ( 	input	Clk,
 									
 				input [3:0]  Opcode, 
 				input        IR_5,
-				  
+				input			 n, z, p, N, Z, P,
+				
 				output logic 	LD_MAR,
 								LD_MDR,
 								LD_IR,
@@ -118,7 +119,8 @@ module ISDU ( 	input	Clk,
 					 Next_state <= S_18;
 				S_09 : 
 					 Next_state <= S_18;
-				S_00 : ;
+				S_00 : 
+					 Next_state <= S_18;
 				S_12 : 
 					 Next_state	<= S_18;
 				S_04 : ;
@@ -190,6 +192,7 @@ module ISDU ( 	input	Clk,
 					ALUK = 2'b00;
 					GateALU = 1'b1;
 					LD_REG = 1'b1;
+					LD_CC = 1'b1;
 				end
 			S_05 :						//AND 
 				begin
@@ -197,18 +200,37 @@ module ISDU ( 	input	Clk,
 					ALUK = 2'b01;
 					GateALU = 1'b1;
 					LD_REG = 1'b1;
+					LD_CC = 1'b1;
            	end
 			S_09 : 						//NOT
 				begin
 					ALUK = 2'b10;
 					GateALU = 1'b1;
 					LD_REG = 1'b1;
+					LD_CC = 1'b1;
 				end
-			S_00 : ;
-			S_12 : ;
-			S_04 : ;
-			S_06 : ;
-			S_07 : ;
+			S_00 : 						//BR
+				begin
+					if ((nzp && NZP) != 0)
+					begin
+						PCMUX = 2'b01;
+						ADDR1MUX = 1'b0;
+						ADDR2MUX = 2'b10;
+						
+				end
+			S_12 : 						//JMP
+				begin
+				end
+			S_04 : 						//JSR
+				begin
+					DRMUX = 2'b10;
+				end
+			S_06 : 						//LDR
+				begin
+				end
+			S_07 : 						//STR
+				begin
+				end
            	
          default : ;
            endcase
