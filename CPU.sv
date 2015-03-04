@@ -1,5 +1,4 @@
-module CPU (input logic		[15:0]	S,
-				input							Clk, Reset, Run, Continue,
+module CPU (input							Clk, Reset, Run, Continue,
 				output logic	[11:0]	LED,
 				output logic				CE, UB, LB, OE, WE,
 				output logic	[19:0]	ADDR,
@@ -9,7 +8,7 @@ module CPU (input logic		[15:0]	S,
 		logic					Reset_h, Continue_h, Run_h;
 		logic					LD_MAR, LD_MDR, LD_IR, LD_BEN, LD_CC, LD_REG, LD_PC;
 		logic		[1:0]		PCMUXselect, DRMUXselect, SR1MUXselect, ADDR2MUXselect;
-		logic					SR2MUXselect, ADDR1MUXselect;
+		logic					SR2MUXselect, ADDR1MUXselect, MARMUXselect;
 		logic		[15:0]	PC_w, PC_x, PC_plus1;
 		logic		[15:0]	PCd_in, PCd_out;
 		logic		[15:0]	MDR_out;
@@ -21,6 +20,8 @@ module CPU (input logic		[15:0]	S,
 		logic		[15:0]	ADDR1_out, ADDR2_out;
 		logic		[1:0]		ALUK;
 		logic					n, z, p;
+		logic		[15:0]	adder_out;
+		logic		[15:0]	MARMUX_out;
 		
 		//assign	PC_w = Data;
 		
@@ -72,10 +73,10 @@ module CPU (input logic		[15:0]	S,
 				)
 		*/
 		
-		ISDU		isdu(.Clk, .Reset(Reset_h), .Run(Run_h), .Continue(), .ContinueIR(Continue_h), .Opcode(S[15:12]), .IR_5(S[4]), .n, .z, .p, .N(S[11]), .Z(S[10]), .P(S[9]),
+		ISDU		isdu(.Clk, .Reset(Reset_h), .Run(Run_h), .Continue(), .ContinueIR(Continue_h), .Opcode(Data[15:12]), .IR_5(Data[4]), .n, .z, .p, .N(Data[11]), .Z(Data[10]), .P(Data[9]),
 						  .LD_MAR, .LD_MDR, .LD_IR, .LD_BEN, .LD_CC, .LD_REG, .LD_PC, .GatePC, .GateMDR, .GateALU, .GateMARMUX, .PCMUX(PCMUXselect), .DRMUX(DRMUXselect),
-						  .SR1MUX(SR1MUXselect), .SR2MUX(SR2MUXselect), .ADDR1MUX(), .ADDR2MUX(), .MARMUX(), .ALUK, .Mem_CE(CE), .Mem_UB(UB), .Mem_LB(LB), 
-						  .Mem_OE(OE), .Mem_WE(WE));
+						  .SR1MUX(SR1MUXselect), .SR2MUX(SR2MUXselect), .ADDR1MUX(ADDR1MUXselect), .ADDR2MUX(ADDR2MUXselect), .MARMUX(MARMUXselect), .ALUK, .Mem_CE(CE),
+						  .Mem_UB(UB), .Mem_LB(LB), .Mem_OE(OE), .Mem_WE(WE));
 		/*
 		module reg_16 (input Clk, Reset, Load,
               input  [15:0]  D,
@@ -100,13 +101,13 @@ module CPU (input logic		[15:0]	S,
 					output	[15:0] 	out);
 		*/
 		
-		four_one_mux_16	PCMUX(.w(Data), .x(), .y(PC_plus1), .z(), .select(PCMUXselect), .out(PCd_in));
-		four_one_mux_3		DRMUX(.w(S[11:9]), .x(3'b110), .y(3'b111), .z(), .select(DRMUXselect), .out(DR));
-		four_one_mux_3		SR1MUX(.w(S[11:9]), .x(S[8:6]), .y(3'b110), .z(), .select(SR1MUXselect), .out(SR1_in));
+		four_one_mux_16	PCMUX(.w(Data), .x(adder_out), .y(PC_plus1), .z(), .select(PCMUXselect), .out(PCd_in));
+		four_one_mux_3		DRMUX(.w(Data[11:9]), .x(3'b110), .y(3'b111), .z(), .select(DRMUXselect), .out(DR));
+		four_one_mux_3		SR1MUX(.w(Data[11:9]), .x(Data[8:6]), .y(3'b110), .z(), .select(SR1MUXselect), .out(SR1_in));
 		two_one_mux_16		SR2MUX(.x(SR2_out), .y(16'($signed(IR_out[4:0]))), .select(SR2MUXselect), .out(ALUB_in));
 		two_one_mux_16		ADDR1MUX(.x(PCd_out), .y(SR1_out), .select(ADDR1MUXselect), .out(ADDR1_out));
 		four_one_mux_16	ADDR2MUX(.w(16'h0000), .x(16'($signed(IR_out[5:0]))), .y(16'($signed(IR_out[8:0]))), .z(16'($signed(IR_out[10:0]))), .select(ADDR2MUXselect), .out(ADDR2_out));
-		//two_one_mux_16		MARMUX()
+		two_one_mux_16		MARMUX(.x(adder_out), .y({8'b00000000, IR_out[7:0]}), .select(MARMUXselect), .out(MARMUX_out));
 		
 		/*
 		module tristate_buffer(input logic	[15:0]	tri_in,
@@ -114,7 +115,7 @@ module CPU (input logic		[15:0]	S,
 							  output logic	[15:0]	tri_out);
 		*/
 		tristate_buffer	PC_tri(.tri_in(PCd_out), .gate(GatePC), .tri_out(Data));
-		//tristate_buffer	MARMUX_tri(.tri_in(PCd_out), .gate(GateMARMUX), .tri_out(Data));
+		tristate_buffer	MARMUX_tri(.tri_in(MARMUX_out), .gate(GateMARMUX), .tri_out(Data));
 		tristate_buffer	MDR_tri(.tri_in(MDR_out), .gate(GateMDR), .tri_out(Data));
 		tristate_buffer	ALU_tri(.tri_in(ALU_out), .gate(GateALU), .tri_out(Data));
 		
@@ -140,7 +141,7 @@ module CPU (input logic		[15:0]	S,
 				output	[15:0]	SR1_out, SR2_out);
 		*/
 
-		regfile			regf(.DR, .SR1_in, .SR2_in(S[2:0]), .D_in(Data), .LD_REG, .Reset(Reset_h), .SR1_out, .SR2_out);
+		regfile			regf(.DR, .SR1_in, .SR2_in(Data[2:0]), .D_in(Data), .LD_REG, .Reset(Reset_h), .SR1_out, .SR2_out);
 		
 		/*
 		module ALU (input		[15:0]	A_In, B_In,
@@ -156,6 +157,14 @@ module CPU (input logic		[15:0]	S,
 		*/
 		
 		nzp_logic		nzp(.*);
+		
+		/*
+		module carry_ripple (input		[15:0] A, B,
+							output	[15:0] S,
+							output			 c_out)
+		*/
+		
+		carry_ripple	ADDR_adder(.A(ADDR1_out), .B(ADDR2_out), .S(adder_out), .c_out());
 		
 		assign LED = IR_out[11:0];
 		assign ALUA_in = SR1_out;

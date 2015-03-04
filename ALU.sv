@@ -8,7 +8,7 @@ module ALU (input		[15:0]	A_In, B_In,
 					2'b00:		F_A_B = A_In + B_In;
 					2'b01: 		F_A_B = A_In & B_In;
 					2'b10: 		F_A_B = ~A_In;
-					2'b11:	 	F_A_B = 1'b0;
+					2'b11:	 	F_A_B = A_In;
 					default: 	F_A_B = A_In + B_In;
 				endcase
 			end
