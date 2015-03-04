@@ -105,7 +105,7 @@ module CPU (input logic		[15:0]	S,
 		four_one_mux_3		SR1MUX(.w(S[11:9]), .x(S[8:6]), .y(3'b110), .z(), .select(SR1MUXselect), .out(SR1_in));
 		two_one_mux_16		SR2MUX(.x(SR2_out), .y(16'($signed(IR_out[4:0]))), .select(SR2MUXselect), .out(ALUB_in));
 		two_one_mux_16		ADDR1MUX(.x(PCd_out), .y(SR1_out), .select(ADDR1MUXselect), .out(ADDR1_out));
-		four_one_mux_16	ADDR2MUX(.w(IR_out), .x(16'($signed(IR_out[5:0]))), .y(16'($signed(IR_out[8:0]))), .z(16'($signed(IR_out[10:0]))), .select(ADDR2MUXselect), .out(ADDR2_out));
+		four_one_mux_16	ADDR2MUX(.w(16'h0000), .x(16'($signed(IR_out[5:0]))), .y(16'($signed(IR_out[8:0]))), .z(16'($signed(IR_out[10:0]))), .select(ADDR2MUXselect), .out(ADDR2_out));
 		//two_one_mux_16		MARMUX()
 		
 		/*
