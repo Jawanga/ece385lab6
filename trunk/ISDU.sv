@@ -188,6 +188,8 @@ module ISDU ( 	input	Clk,
              LD_BEN = 1'b1;
 			S_01 : 						//ADD
             begin 
+            		DRMUX = 2'b00;
+            		SR1MUX = 2'b01;
 					SR2MUX = IR_5;
 					ALUK = 2'b00;
 					GateALU = 1'b1;
@@ -196,6 +198,8 @@ module ISDU ( 	input	Clk,
 				end
 			S_05 :						//AND 
 				begin
+					DRMUX = 2'b00;
+					SR1MUX = 2'b01;
 					SR2MUX = IR_5;
 					ALUK = 2'b01;
 					GateALU = 1'b1;
@@ -204,6 +208,8 @@ module ISDU ( 	input	Clk,
            	end
 			S_09 : 						//NOT
 				begin
+					DRMUX = 2'b00;
+					SR1MUX = 2'b01;
 					ALUK = 2'b10;
 					GateALU = 1'b1;
 					LD_REG = 1'b1;
@@ -211,19 +217,26 @@ module ISDU ( 	input	Clk,
 				end
 			S_00 : 						//BR
 				begin
-					if ((nzp && NZP) != 0)
+					if (((n && N) && (z && Z) && (p && P)) != 0)
 					begin
 						PCMUX = 2'b01;
+						LD_PC = 1'b1;
 						ADDR1MUX = 1'b0;
 						ADDR2MUX = 2'b10;
-						
+					end
 				end
 			S_12 : 						//JMP
 				begin
+					LD_PC = 1'b1;
+					PCMUX = 2'b01;
+					ADDR1MUX = 1'b1;
+					ADDR2MUX = 2'b00;
 				end
 			S_04 : 						//JSR
 				begin
 					DRMUX = 2'b10;
+					GatePC = 1'b1;
+					LD_REG = 1'b1;
 				end
 			S_06 : 						//LDR
 				begin
