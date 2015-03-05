@@ -1,5 +1,5 @@
 module CPU (input							Clk, Reset, Run, Continue,
-				output logic	[11:0]	LED,
+				output logic	[15:0]	LED,
 				output logic				CE, UB, LB, OE, WE,
 				output logic	[19:0]	ADDR,
 				//output logic	[6:0]		HEX0, HEX1, HEX2, HEX3,
@@ -23,6 +23,7 @@ module CPU (input							Clk, Reset, Run, Continue,
 		logic		[15:0]	adder_out;
 		logic		[15:0]	MARMUX_out;
 		logic		[15:0]	ADDR_sum;
+		logic					BEN_out;
 		
 		//assign	PC_w = Data;
 		
@@ -74,7 +75,7 @@ module CPU (input							Clk, Reset, Run, Continue,
 				)
 		*/
 		
-		ISDU		isdu(.Clk, .Reset(Reset_h), .Run(Run_h), .Continue(), .ContinueIR(Continue_h), .Opcode(IR_out[15:12]), .IR_5(IR_out[4]), .n, .z, .p, .N(IR_out[11]), .Z(IR_out[10]), .P(IR_out[9]),
+		ISDU		isdu(.Clk, .Reset(Reset_h), .Run(Run_h), .Continue(), .ContinueIR(Continue_h), .Opcode(IR_out[15:12]), .IR_5(IR_out[4]), .BEN_out,
 						  .LD_MAR, .LD_MDR, .LD_IR, .LD_BEN, .LD_CC, .LD_REG, .LD_PC, .GatePC, .GateMDR, .GateALU, .GateMARMUX, .PCMUX(PCMUXselect), .DRMUX(DRMUXselect),
 						  .SR1MUX(SR1MUXselect), .SR2MUX(SR2MUXselect), .ADDR1MUX(ADDR1MUXselect), .ADDR2MUX(ADDR2MUXselect), .MARMUX(MARMUXselect), .ALUK, .Mem_CE(CE),
 						  .Mem_UB(UB), .Mem_LB(LB), .Mem_OE(OE), .Mem_WE(WE));
@@ -88,6 +89,7 @@ module CPU (input							Clk, Reset, Run, Continue,
 		reg_16		MDR(.Clk, .Reset(Reset_h), .Load(LD_MDR), .D(Data), .Data_Out(MDR_out));
 		reg_16		PC(.Clk, .Reset(Reset_h), .Load(LD_PC), .D(PCd_in), .Data_Out(PCd_out));
 		reg_16		IR(.Clk, .Reset(Reset_h), .Load(LD_IR), .D(Data), .Data_Out(IR_out));
+		reg_1			BEN_reg(.Clk, .Reset(Reset_h), .Load(LD_BEN), .D(BEN), .Data_Out(BEN_out));
 		
 		/*
 		module plus1(input logic	[15:0]	PC_in,
@@ -159,16 +161,9 @@ module CPU (input							Clk, Reset, Run, Continue,
 		
 		nzp_logic		nzp(.*);
 		
-		/*
-		module carry_ripple (input		[15:0] A, B,
-							output	[15:0] S,
-							output			 c_out)
-		*/
-		
-		//carry_ripple	ADDR_adder(.A(ADDR1_out), .B(ADDR2_out), .S(adder_out), .c_out());
-		
-		assign LED = IR_out[11:0];
+		assign LED = IR_out[15:0];
 		assign ALUA_in = SR1_out;
 		assign ADDR_sum = ADDR1_out + ADDR2_out;
+		assign BEN = (n & IR_out[11]) || (z & IR_out[10]) || (p & IR_out[9]);
 
 endmodule
