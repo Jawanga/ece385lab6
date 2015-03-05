@@ -245,10 +245,11 @@ module ISDU ( 	input	Clk,
 				end
 			S_12 : 						//JMP
 				begin
-					LD_PC = 1'b1;
-					PCMUX = 2'b01;
+					SR1MUX = 2'b01;
 					ADDR1MUX = 1'b1;
 					ADDR2MUX = 2'b00;
+					PCMUX = 2'b01;
+					LD_PC = 1'b1;
 				end
 			S_04 : 						//JSR
 				begin
