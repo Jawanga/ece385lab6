@@ -1,5 +1,6 @@
 module SLC3 (input						Clk, Run, Reset, Continue,
 				 input logic	[15:0]	Switches,
+				 output logic	[15:0]	LED,
 				 output logic	[6:0]		HEX0, HEX1, HEX2, HEX3);
 				 
 		wire	[15:0]	Data_Bus;
@@ -25,7 +26,7 @@ module SLC3 (input						Clk, Run, Reset, Continue,
 			inout logic		[15:0]	Data);
 		*/
 		
-		CPU		test(.Clk, .Run, .Reset, .Continue, .LED(), .CE, .UB, .LB, .OE, .WE, .ADDR, .Data(Data_Bus));
+		CPU		test(.Clk, .Run, .Reset, .Continue, .LED, .CE, .UB, .LB, .OE, .WE, .ADDR, .Data(Data_Bus));
 		
 		/*		 
 		module  Mem2IO ( 	input Clk, Reset,
