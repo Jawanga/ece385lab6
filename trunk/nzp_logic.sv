@@ -1,6 +1,6 @@
-module nzp_logic (input		[15:0]	Data,
-						input					LD_CC,
-						output				n, z, p);
+module nzp_logic (input		[15:0]		Data,
+						input						LD_CC,
+						output logic			n, z, p);
 
 		always_ff @ (posedge LD_CC)
 		begin

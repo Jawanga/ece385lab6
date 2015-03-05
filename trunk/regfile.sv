@@ -1,7 +1,7 @@
-module regfile (input	[2:0]		DR, SR1_in, SR2_in,
-					 input	[15:0]	D_in,
-					 input				LD_REG, Reset,
-					 output	[15:0]	SR1_out, SR2_out);
+module regfile (input			[2:0]		DR, SR1_in, SR2_in,
+					 input			[15:0]	D_in,
+					 input						LD_REG, Reset,
+					 output logic	[15:0]	SR1_out, SR2_out);
 
 		reg [15:0] data_registers [0:7];
 
