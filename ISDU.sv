@@ -54,7 +54,7 @@ module ISDU ( 	input	Clk,
 									Mem_WE
 				);
 
-    enum logic [4:0] {Halted, PauseIR1, PauseIR2, S_18, S_33_1, S_33_2, S_35, S_32, S_01, S_05, S_09, S_00, S_22, S_12, S_04, S_21, S_06, S_25_1, S_25_2, S_27, S_07, S_23, S_16_1, S_16_2, S_Pause1, S_Pause2}   State, Next_state;   // Internal state logic
+    enum logic [4:0] {Halted, PauseIR1, PauseIR2, S_18, S_33_1, S_33_2, S_35, S_32, S_01, S_05, S_09, S_00, S_22, S_12, S_04, S_21, S_06, S_25_1, S_25_2, S_27, S_07, S_23_1, S_23_2, S_16_1, S_16_2, S_Pause1, S_Pause2}   State, Next_state;   // Internal state logic
 	    
     always_ff @ (posedge Clk or posedge Reset )
     begin : Assign_Next_State
@@ -143,8 +143,10 @@ module ISDU ( 	input	Clk,
 				S_27 :
 					 Next_state <= S_18;
 				S_07 :
-					 Next_state <= S_23;
-				S_23 :
+					 Next_state <= S_23_1;
+				S_23_1 :
+					 Next_state <= S_23_2;
+				S_23_2 :
 					 Next_state <= S_16_1;
 				S_16_1 :
 					 Next_state <= S_16_2;
@@ -311,7 +313,14 @@ module ISDU ( 	input	Clk,
 					GateMARMUX = 1'b1;
 					LD_MAR = 1'b1;
 				end
-			S_23:
+			S_23_1:
+				begin
+					SR1MUX = 2'b00;
+					ALUK = 2'b11;
+					GateALU = 1'b1;
+					LD_MDR = 1'b1;
+				end
+			S_23_2:
 				begin
 					SR1MUX = 2'b00;
 					ALUK = 2'b11;
@@ -321,11 +330,13 @@ module ISDU ( 	input	Clk,
 			S_16_1:
 				begin
 					GateMDR = 1'b1;
-					LD_MAR = 1'b1;
 					Mem_WE = 1'b0;
 				end
 			S_16_2:
-				Mem_OE = 1'b0;
+				begin
+					GateMDR = 1'b1;
+					Mem_WE = 1'b0;
+				end
 			S_Pause1: ;
 			S_Pause2: ;
          default : ;
